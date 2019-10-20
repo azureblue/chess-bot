@@ -8,8 +8,41 @@ public class Move {
     public static final int FLAG_CAPTURE = 1 << 18;
     private final int moveData;
 
+    public Move(int rawMoveData) {
+        moveData = rawMoveData;
+    }
+
     public Move(Piece piece, Piece promoted, int sx, int sy, int dx, int dy, int flags) {
-        moveData = piece.ordinal()
+        this(raw(piece, promoted, sx, sy, dx, dy, flags));
+    }
+
+    public static int raw(Piece piece, int posFrom, int posTo, int flags) {
+        return piece.ordinal()
+                | posFrom << 6
+                | posTo << 12
+                | flags;
+    }
+
+
+    public static int raw(Piece piece, Piece promoted, int posFrom, int posTo, int flags) {
+        return piece.ordinal()
+                | (promoted != null ? (promoted.ordinal() << 3) : 0)
+                | posFrom << 6
+                | posTo << 12
+                | flags;
+    }
+
+    public static int raw(Piece piece, int sx, int sy, int dx, int dy, int flags) {
+        return piece.ordinal()
+                | sx << 6
+                | sy << 9
+                | dx << 12
+                | dy << 15
+                | flags;
+    }
+
+    public static int raw(Piece piece, Piece promoted, int sx, int sy, int dx, int dy, int flags) {
+        return piece.ordinal()
                 | (promoted != null ? (promoted.ordinal() << 3) : 0)
                 | sx << 6
                 | sy << 9
@@ -19,23 +52,7 @@ public class Move {
     }
 
     public Move(Piece piece, Piece promoted, int rawSrcPos, int rawDstPos, int flags) {
-        moveData = piece.ordinal()
-                | (promoted != null ? (promoted.ordinal() << 3) : 0)
-                | rawSrcPos << 6
-                | rawDstPos << 12
-                | flags;
-    }
-
-    public String toLongNotation() {
-        StringBuilder sb = new StringBuilder(8);
-        Piece piece = getPiece();
-        if (piece != Piece.Pawn)
-            sb.append(piece.symbol);
-        sb.append(Position.toNotation(sx(), sy()));
-        if (flag(FLAG_CAPTURE))
-            sb.append('x');
-        sb.append(Position.toNotation(dx(), dy()));
-        return sb.toString();
+        moveData = raw(piece, promoted, rawSrcPos, rawDstPos, flags);
     }
 
     public static Move move(String move) {
@@ -51,7 +68,18 @@ public class Move {
         }
         int rawTo = position(move, current).raw();
         return new Move(piece, null, rawFrom, rawTo, flags);
+    }
 
+    public String toLongNotation() {
+        StringBuilder sb = new StringBuilder(8);
+        Piece piece = getPiece();
+        if (piece != Piece.Pawn)
+            sb.append(piece.symbol);
+        sb.append(Position.toNotation(sx(), sy()));
+        if (flag(FLAG_CAPTURE))
+            sb.append('x');
+        sb.append(Position.toNotation(dx(), dy()));
+        return sb.toString();
     }
 
     public final Piece getPiece() {
@@ -91,5 +119,13 @@ public class Move {
     @Override
     public String toString() {
         return toLongNotation();
+    }
+
+    public int posSrc() {
+        return moveData >> 6 & 63;
+    }
+
+    public int posDst() {
+        return moveData >> 12 & 63;
     }
 }

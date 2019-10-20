@@ -31,5 +31,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="com.carrotsearch:hppc:0.8.1" level="project" />
   </component>
 </module>

@@ -14,10 +14,12 @@ public class Moves {
         int leftX = x - dir;
         int rightX = x + dir;
 
-        acceptMoveIfEmpty(out, board, x, forwardY);
+        if (board.isEmpty(x, forwardY)) {
+            out.accept(x, forwardY);
 
-        if ((y - dir) % 7 == 0)
-            acceptMoveIfEmpty(out, board, x, y + dir * 2);
+            if ((y - dir) % 7 == 0)
+                acceptMoveIfEmpty(out, board, x, y + dir * 2);
+        }
 
         if (board.canTake(white, leftX, forwardY))
             out.accept(leftX, forwardY);
@@ -32,7 +34,7 @@ public class Moves {
     };
 
     public static final MoveGenerator bishop = (board, x, y, white, out) -> {
-        for (int xx = x + 1, yy = y + 1; xx < 8 && yy < 8; xx++, y++) {
+        for (int xx = x + 1, yy = y + 1; xx < 8 && yy < 8; xx++, yy++) {
             if (board.isEmpty(xx, yy))
                 out.accept(xx, yy);
             else {
@@ -42,7 +44,7 @@ public class Moves {
             }
         }
 
-        for (int xx = x - 1, yy = y + 1; xx >= 0 && yy < 8; xx--, y++) {
+        for (int xx = x - 1, yy = y + 1; xx >= 0 && yy < 8; xx--, yy++) {
             if (board.isEmpty(xx, yy))
                 out.accept(xx, yy);
             else {
@@ -52,7 +54,7 @@ public class Moves {
             }
         }
 
-        for (int xx = x - 1, yy = y - 1; xx >= 0 && yy >= 0; xx--, y--) {
+        for (int xx = x - 1, yy = y - 1; xx >= 0 && yy >= 0; xx--, yy--) {
             if (board.isEmpty(xx, yy))
                 out.accept(xx, yy);
             else {
@@ -62,7 +64,7 @@ public class Moves {
             }
         }
 
-        for (int xx = x + 1, yy = y - 1; xx < 8 && yy >= 0; xx++, y--) {
+        for (int xx = x + 1, yy = y - 1; xx < 8 && yy >= 0; xx++, yy--) {
             if (board.isEmpty(xx, yy))
                 out.accept(xx, yy);
             else {
@@ -139,12 +141,12 @@ public class Moves {
         System.out.println(COLOR_MASK);
     }
 
-    private static void acceptMoveIfPossible(PositionConsumer out, Board board, boolean playerIsWhite, int x, int y) {
+    private static void acceptMoveIfPossible(MoveConsumer out, Board board, boolean playerIsWhite, int x, int y) {
         if (board.canMoveOrTake(playerIsWhite, x, y))
             out.accept(x, y);
     }
 
-    private static void acceptMoveIfEmpty(PositionConsumer out, Board board, int x, int y) {
+    private static void acceptMoveIfEmpty(MoveConsumer out, Board board, int x, int y) {
         if (board.canMove(x, y))
             out.accept(x, y);
     }

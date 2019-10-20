@@ -1,5 +1,6 @@
 package kk.chessbot.moves;
 
+import com.carrotsearch.hppc.IntHashSet;
 import kk.chessbot.Board;
 import kk.chessbot.Piece;
 import kk.chessbot.wrappers.Move;
@@ -9,31 +10,22 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
+import static java.util.stream.StreamSupport.stream;
 import static kk.chessbot.moves.BoardUtils.board;
 import static kk.chessbot.moves.BoardUtils.boardFromString;
 import static kk.chessbot.wrappers.Move.move;
 
 class MovesTest {
 
-    static class MoveCollector {
-        private HashSet<Move> moves = new HashSet<>();
-
-        public void generateMoves(Board board, Piece piece, boolean white, int x, int y) {
-            Moves.getGenerator(piece).generateMoves(board, x, y, white, (dx, dy)
-                    -> moves.add(new Move(piece, null, x, y, dx, dy, board.isEmpty(dx, dy) ? 0 : Move.FLAG_CAPTURE)));
-        }
-
-        public HashSet<Move> get() {
-            return moves;
-        }
-    }
-
-    private static HashSet<Move> generateAllMoves(Board board) {
+    private static Set<Move> generateAllMoves(Board board) {
         MoveCollector moveCollector = new MoveCollector();
         board.forEachPiece(moveCollector::generateMoves);
-        return moveCollector.get();
+        IntHashSet moves = moveCollector.get();
+        return stream(moves.spliterator(), false).map(v -> new Move(v.value)).collect(Collectors.toSet());
 
     }
 
@@ -42,7 +34,7 @@ class MovesTest {
     }
 
     private static void testMoves(Board board, Predicate<Move> filter, Move... expectedMoves) {
-        HashSet<Move> moves = generateAllMoves(board);
+        Set<Move> moves = generateAllMoves(board);
         moves.removeIf(filter.negate());
         Assertions.assertEquals(new HashSet<>(Arrays.asList(expectedMoves)), moves);
     }

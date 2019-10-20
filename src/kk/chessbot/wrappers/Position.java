@@ -1,5 +1,7 @@
 package kk.chessbot.wrappers;
 
+import java.util.Objects;
+
 public class Position {
 
     private final short position;
@@ -8,8 +10,12 @@ public class Position {
         this.position = position;
     }
 
+    public static Position position(int pos) {
+        return new Position((short) pos);
+    }
+
     public static Position position(int x, int y) {
-        return new Position((short) (x | (y << 3)));
+        return new Position(toRaw(x, y));
     }
 
     public static Position position(String position) {
@@ -22,6 +28,10 @@ public class Position {
             col += 32;
 
         return position(col - 'a', position.charAt(offset + 1) - 49);
+    }
+
+    public static short toRaw(int x, int y) {
+        return (short) (x | y << 3);
     }
 
     public String toString() {
@@ -42,5 +52,23 @@ public class Position {
 
     public static String toNotation(int x, int y) {
         return "" + (char) ('a' + x) + (y + 1);
+    }
+
+    public static int x(int position) {
+        return position & 7;
+    }
+
+    public static int y(int position) {
+        return position >> 3 & 7;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return position == ((Position) o).position;
+    }
+
+    @Override
+    public int hashCode() {
+        return position;
     }
 }
