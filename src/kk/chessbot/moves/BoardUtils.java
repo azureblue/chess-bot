@@ -12,14 +12,33 @@ public class BoardUtils {
         }
 
         private final Board board = new Board();
+
         public BoardBuilder with(Piece piece, boolean white, Position position) {
             board.set(piece, position.x(), position.y(), white);
             return this;
         }
+
+        public BoardBuilder clear(Position position) {
+            board.clear(position.x(), position.y());
+            return this;
+        }
+
         public Board build() {
             return board;
         }
 
+        public BoardBuilder starting() {
+            board.set(fromString("" +
+                    "♜♞♝♛♚♝♞♜" +
+                    "♟♟♟♟♟♟♟♟" +
+                    "        " +
+                    "        " +
+                    "        " +
+                    "        " +
+                    "♙♙♙♙♙♙♙♙" +
+                    "♖♘♗♕♔♗♘♖"));
+            return this;
+        }
     }
 
     public static BoardBuilder board() {
@@ -41,8 +60,7 @@ public class BoardUtils {
                 piece = Piece.pieceByUnicodeSymbol(ch);
                 if (ch > '\u2659')
                     white = false;
-            }
-            else {
+            } else {
                 piece = Piece.pieceByChar(Character.toUpperCase(ch));
                 if (Character.isLowerCase(ch))
                     white = false;

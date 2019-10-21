@@ -223,4 +223,8 @@ public class Board {
     public int hashCode() {
         return Arrays.hashCode(board);
     }
+
+    public void set(Board board) {
+        System.arraycopy(board.board, 0, this.board, 0, 64);
+    }
 }

@@ -43,9 +43,6 @@ public class RandomPlayer {
 
         boolean kingChecked = isKingChecked(opMoves, PiecePositions.fromBoard(board).getKing(white));
 
-        if (!kingChecked)
-            return new Move(myMovesAr[random.nextInt(myMovesAr.length)]);
-
         IntHashSet possibleMoves = new IntHashSet();
 
         for (int m : myMovesAr) {
