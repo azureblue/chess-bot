@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.StreamSupport.stream;
 import static kk.chessbot.moves.BoardUtils.board;
-import static kk.chessbot.moves.BoardUtils.boardFromString;
+import static kk.chessbot.moves.BoardUtils.fromString;
 import static kk.chessbot.wrappers.Move.move;
 
 class MovesTest {
@@ -60,8 +60,47 @@ class MovesTest {
     }
 
     @Test
+    void test_pawn_promotion() {
+        testMoves(board()
+                        .with(Piece.Pawn, true, Position.position("a7"))
+                        .with(Piece.Pawn, false, Position.position("b2"))
+                        .build(),
+                move("a7a8r"),
+                move("a7a8q"),
+                move("a7a8n"),
+                move("a7a8b"),
+
+                move("b2b1r"),
+                move("b2b1q"),
+                move("b2b1n"),
+                move("b2b1b")
+        );
+
+        testMoves(board()
+                        .with(Piece.Pawn, true, Position.position("a7"))
+                        .with(Piece.Knight, false, Position.position("a8"))
+                        .with(Piece.Knight, false, Position.position("b8"))
+                        .build(), move -> move.getPiece() == Piece.Pawn,
+                move("a7xb8r"),
+                move("a7xb8q"),
+                move("a7xb8n"),
+                move("a7xb8b"));
+
+        testMoves(board()
+                        .with(Piece.Pawn, false, Position.position("d2"))
+                        .with(Piece.Knight, true, Position.position("d1"))
+                        .with(Piece.Knight, true, Position.position("c1"))
+                        .build(), move -> move.getPiece() == Piece.Pawn,
+                move("d2xc1R"),
+                move("d2xc1Q"),
+                move("d2xc1N"),
+                move("d2xc1B"));
+
+    }
+
+    @Test
     void test_pawn_moves() {
-        testMoves(boardFromString("" +
+        testMoves(fromString("" +
                         /*8*/"        " +
                         /*7*/"        " +
                         /*6*/"    ♟♙  " +
@@ -84,8 +123,38 @@ class MovesTest {
     }
 
     @Test
+    void test_root_moves() {
+        testMoves(fromString("" +
+                        /*8*/"        " +
+                        /*7*/"        " +
+                        /*6*/"        " +
+                        /*5*/"  ♖     " +
+                        /*4*/"        " +
+                        /*3*/"        " +
+                        /*2*/"        " +
+                        /*1*/"        "),
+//                            ABCDEFGH
+                move("Rc5c6"),
+                move("Rc5c7"),
+                move("Rc5c8"),
+                move("Rc5c4"),
+                move("Rc5c3"),
+                move("Rc5c2"),
+                move("Rc5c1"),
+                move("Rc5b5"),
+                move("Rc5a5"),
+                move("Rc5d5"),
+                move("Rc5e5"),
+                move("Rc5f5"),
+                move("Rc5g5"),
+                move("Rc5h5")
+
+        );
+    }
+
+    @Test
     void test_knight_moves() {
-        testMoves(boardFromString("" +
+        testMoves(fromString("" +
                         /*8*/"♘       " +
                         /*7*/"  ♟     " +
                         /*6*/"        " +

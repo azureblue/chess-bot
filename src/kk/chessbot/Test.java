@@ -5,7 +5,7 @@ import kk.chessbot.wrappers.Move;
 import java.util.Random;
 import java.util.Scanner;
 
-import static kk.chessbot.moves.BoardUtils.boardFromString;
+import static kk.chessbot.moves.BoardUtils.fromString;
 
 public class Test {
     public static void main(String[] args) {
@@ -13,7 +13,7 @@ public class Test {
             Random r1 = new Random(1234);
             Random r2 = new Random(12345);
 
-            Board p1Board = boardFromString("" +
+            Board p1Board = fromString("" +
                     "♜♞♝♛♚♝♞♜" +
                     "♟♟♟♟♟♟♟♟" +
                     "        " +
@@ -23,7 +23,7 @@ public class Test {
                     "♙♙♙♙♙♙♙♙" +
                     "♖♘♗♕♔♗♘♖");
 
-            Board p2Board = boardFromString("" +
+            Board p2Board = fromString("" +
                     "♜♞♝♛♚♝♞♜" +
                     "♟♟♟♟♟♟♟♟" +
                     "        " +

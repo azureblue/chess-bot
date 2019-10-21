@@ -1,12 +1,8 @@
 package kk.chessbot;
 
-import kk.chessbot.wrappers.Move;
 import org.junit.jupiter.api.Test;
 
-import java.util.Random;
-import java.util.Scanner;
-
-import static kk.chessbot.moves.BoardUtils.boardFromString;
+import static kk.chessbot.moves.BoardUtils.fromString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RandomPlayerTest {
@@ -14,7 +10,7 @@ class RandomPlayerTest {
     @Test
     void escapeFromMate() {
 
-        assertEquals("c2xb3", new RandomPlayer(boardFromString("" +
+        assertEquals("c2xb3", new RandomPlayer(fromString("" +
                 /*8*/"        " +
                 /*7*/"        " +
                 /*6*/"        " +
@@ -25,7 +21,7 @@ class RandomPlayerTest {
                 /*1*/" ♔ ♚    "),
                 true).move().toLongNotation());
 
-        assertEquals("Kb1c2", new RandomPlayer(boardFromString("" +
+        assertEquals("Kb1c2", new RandomPlayer(fromString("" +
                 /*8*/"        " +
                 /*7*/"        " +
                 /*6*/"        " +
@@ -36,7 +32,7 @@ class RandomPlayerTest {
                 /*1*/" ♔ ♜    "),
                 true).move().toLongNotation());
 
-        assertEquals("Rg3b3", new RandomPlayer(boardFromString("" +
+        assertEquals("Rg3b3", new RandomPlayer(fromString("" +
                 /*8*/"        " +
                 /*7*/"        " +
                 /*6*/"        " +
@@ -48,7 +44,7 @@ class RandomPlayerTest {
                 true).move().toLongNotation());
 
         //black
-        assertEquals("Rg3b3", new RandomPlayer(boardFromString("" +
+        assertEquals("Rg3b3", new RandomPlayer(fromString("" +
                 /*8*/"        " +
                 /*7*/"        " +
                 /*6*/"        " +
@@ -59,7 +55,7 @@ class RandomPlayerTest {
                 /*1*/"        "),
                 false).move().toLongNotation());
 
-        assertEquals("c4xb3", new RandomPlayer(boardFromString("" +
+        assertEquals("c4xb3", new RandomPlayer(fromString("" +
                 /*8*/"        " +
                 /*7*/"        " +
                 /*6*/"        " +
@@ -70,7 +66,7 @@ class RandomPlayerTest {
                 /*1*/" ♚ ♔    "),
                 false).move().toLongNotation());
 
-        assertEquals("Kb1c2", new RandomPlayer(boardFromString("" +
+        assertEquals("Kb1c2", new RandomPlayer(fromString("" +
                 /*8*/"        " +
                 /*7*/"        " +
                 /*6*/"        " +

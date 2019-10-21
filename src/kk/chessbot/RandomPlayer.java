@@ -50,11 +50,13 @@ public class RandomPlayer {
 
         for (int m : myMovesAr) {
             Move move = new Move(m);
-            byte prev = board.apply(move);
+            int prev = board.apply(move);
+//            System.out.println(board.toUnicodeMultiline());
             opMoves.generateMoves(board, op);
             if (!isKingChecked(opMoves, PiecePositions.fromBoard(board).getKing(white)))
                 possibleMoves.add(m);
             board.revertMove(move, prev);
+//            System.out.println(board.toUnicodeMultiline());
         }
 
         if (possibleMoves.size() == 0)
@@ -66,6 +68,8 @@ public class RandomPlayer {
     }
 
     public boolean isKingChecked(MoveCollector opMoves, int kingPos) {
+
+
         if (kingPos == -1)
             return false;
         return opMoves.get().forEach(new IntProcedure() {
@@ -73,7 +77,7 @@ public class RandomPlayer {
 
             @Override
             public void apply(int move) {
-                if (new Move(move).posDst() == kingPos)
+                if (new Move(move).posTo() == kingPos)
                     kingChecked = true;
             }
         }).kingChecked;

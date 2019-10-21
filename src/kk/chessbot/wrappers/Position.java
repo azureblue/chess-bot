@@ -34,6 +34,10 @@ public class Position {
         return (short) (x | y << 3);
     }
 
+    public static int dx(int rawPosFrom, int rawPosTo) {
+        return (rawPosTo & 7) - (rawPosFrom & 7);
+    }
+
     public String toString() {
         return toNotation(x(), y());
     }

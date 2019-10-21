@@ -1,12 +1,13 @@
 package kk.chessbot;
 
 import kk.chessbot.wrappers.Move;
+import kk.chessbot.wrappers.Position;
+
+import java.util.Arrays;
 
 public class Board {
 
     public static final byte COLOR_MASK = 1 << 6;
-
-    private static Piece[] pieces = Piece.values();
 
     private final byte[] board = new byte[8 * 8];
 
@@ -14,15 +15,15 @@ public class Board {
         return (x & 7) == x && (y & 7) == y;
     }
 
-    private static byte pieceToInt(Piece piece, boolean white) {
-        return (byte) (piece.ordinal() + 1 | (white ? 0 : COLOR_MASK));
+    private static byte pieceToRaw(Piece piece, boolean white) {
+        return (byte) (piece.bits | (white ? 0 : COLOR_MASK));
     }
 
     private static Piece getPiece(int raw) {
         raw &= ~COLOR_MASK;
         if (raw == 0)
             return null;
-        return pieces[raw - 1];
+        return Piece.byBits(raw);
     }
 
     private static Player player(int i) {
@@ -56,9 +57,10 @@ public class Board {
     public void clear(int x, int y) {
         board[y * 8 + x] = 0;
     }
+
     public byte set(Piece piece, int x, int y, boolean white) {
         byte raw = board[y * 8 + x];
-        board[y * 8 + x] = pieceToInt(piece, white);
+        board[y * 8 + x] = pieceToRaw(piece, white);
         return raw;
     }
 
@@ -81,6 +83,7 @@ public class Board {
     public boolean isEmpty(int pos) {
         return board[pos] == 0;
     }
+
     public boolean isEmptyRaw(int raw) {
         return raw == 0;
     }
@@ -95,6 +98,10 @@ public class Board {
 
     public final boolean rawIsWhite(int raw) {
         return (raw & COLOR_MASK) == 0;
+    }
+
+    public String toString() {
+        return toUnicodeMultiline();
     }
 
     public String toUnicodeMultiline() {
@@ -142,19 +149,78 @@ public class Board {
         return board[pos];
     }
 
-    public byte apply(Move move) {
-        byte temp = board[move.posDst()];
-        set(move.posDst(), get(move.posSrc()));
-        clear(move.posSrc());
+    public int apply(Move move) {
+        int rawPosFrom = move.posFrom();
+        int rawPosTo = move.posTo();
+        if (move.getPiece() == Piece.King) {
+            int dx = Position.dx(rawPosFrom, rawPosTo);
+            if (Math.abs(dx) > 1) {
+                int row = Position.y(rawPosFrom);
+                boolean queenSide = dx == -2;
+                if (queenSide) {
+                    clear(4, row);
+                    clear(0, row);
+                    set(Piece.King, 2, row, row == 0);
+                    set(Piece.Rook, 3, row, row == 0);
+                } else {
+                    clear(4, row);
+                    clear(7, row);
+                    set(Piece.King, 6, row, row == 0);
+                    set(Piece.Rook, 5, row, row == 0);
+                }
+                return 0;
+            }
+        }
+        byte temp = board[rawPosTo];
+        set(rawPosTo, get(rawPosFrom));
+        if (move.isPromotion())
+            set(rawPosTo, pieceToRaw(move.getPiecePromoted(), isWhite(rawPosFrom)));
+        clear(rawPosFrom);
         return temp;
     }
 
-    public void revertMove(Move move, byte previous) {
-        set(move.getPiece(), move.sx(), move.sy(), isWhite(move.posDst()));
-        set(move.posDst(), previous);
+    public void revertMove(Move move, int stateData) {
+        int rawPosFrom = move.posFrom();
+        int rawPosTo = move.posTo();
+        if (move.getPiece() == Piece.King) {
+            int dx = Position.dx(rawPosFrom, rawPosTo);
+            if (Math.abs(dx) > 1) {
+                int row = Position.y(rawPosFrom);
+                boolean queenSide = dx == -2;
+                if (queenSide) {
+                    clear(2, row);
+                    clear(3, row);
+                    set(Piece.King, 4, row, row == 0);
+                    set(Piece.Rook, 0, row, row == 0);
+                } else {
+                    clear(5, row);
+                    clear(6, row);
+                    set(Piece.King, 4, row, row == 0);
+                    set(Piece.Rook, 7, row, row == 0);
+                }
+                return;
+            }
+        }
+        set(move.getPiece(), move.sx(), move.sy(), isWhite(move.posTo()));
+        set(move.posTo(), (byte) (stateData & 0xFF));
     }
 
     private void clear(int pos) {
         board[pos] = 0;
+    }
+
+    public void clearAll() {
+        Arrays.fill(board, (byte) 0);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        Board board1 = (Board) o;
+        return Arrays.equals(board, board1.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(board);
     }
 }

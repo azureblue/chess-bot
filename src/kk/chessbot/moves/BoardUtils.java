@@ -26,7 +26,7 @@ public class BoardUtils {
         return new BoardBuilder();
     }
 
-    public static Board boardFromString(String str) {
+    public static Board fromString(String str) {
         Board board = new Board();
         int pos = 0;
         for (char ch : str.toCharArray()) {

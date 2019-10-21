@@ -18,8 +18,7 @@ public class MoveCollector {
     }
 
     public void generateMoves(Board board, Piece piece, boolean white, int x, int y) {
-        Moves.getGenerator(piece).generateMoves(board, x, y, white, (dx, dy)
-                -> moves.add(Move.raw(piece, null, x, y, dx, dy, board.isEmpty(dx, dy) ? 0 : Move.FLAG_CAPTURE)));
+        Moves.getGenerator(piece).generateMoves(board, x, y, white, moves::add);
     }
 
     public void generateMoves(Board board, BitBoard mask) {
@@ -33,15 +32,13 @@ public class MoveCollector {
     }
 
 
-    public void generateMovesAt(Board board, int pos, IntConsumer moveConsumer) {
+    public void generateMovesAt(Board board, int pos, MoveConsumer moveConsumer) {
         Piece piece = board.piece(pos);
         if (piece == null)
             return;
         int y = Position.y(pos);
         int x = Position.x(pos);
-        Moves.getGenerator(piece).generateMoves(board, x, y, board.isWhite(pos),
-                (xx, yy) -> moveConsumer.accept(Move.raw(piece, null, pos, xx | yy << 3,
-                        board.isEmpty(xx, yy) ? 0 : Move.FLAG_CAPTURE)));
+        Moves.getGenerator(piece).generateMoves(board, x, y, board.isWhite(pos), moveConsumer);
 
     }
 
