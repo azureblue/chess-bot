@@ -14,7 +14,7 @@ class BitBoardTest {
         assertTrue(bitBoard.get(7, 2));
         assertFalse(bitBoard.get(2, 7));
 
-        System.out.println(bitBoard);
+//        System.out.println(bitBoard);
     }
 
 }

@@ -7,11 +7,20 @@ import java.util.Arrays;
 
 public class Board {
 
-    public static final byte COLOR_MASK = 1 << 6;
+    public static final int COLOR_BIT_SHIFT = 6;
+    public static final byte COLOR_MASK = 1 << COLOR_BIT_SHIFT;
+    private static final byte COLOR_MASK_INV = ~COLOR_MASK;
 
     private final byte[] board = new byte[8 * 8];
 
-    public static boolean inside(int x, int y) {
+    public Board() {
+    }
+
+    public Board(Board board) {
+        set(board);
+    }
+
+    private static boolean inside(int x, int y) {
         return (x & 7) == x && (y & 7) == y;
     }
 
@@ -19,15 +28,17 @@ public class Board {
         return (byte) (piece.bits | (white ? 0 : COLOR_MASK));
     }
 
-    private static Piece getPiece(int raw) {
-        raw &= ~COLOR_MASK;
-        if (raw == 0)
-            return null;
-        return Piece.byBits(raw);
+    private void setColor(int pos, boolean white) {
+        if (white)
+            board[pos] &= COLOR_MASK_INV;
+        else
+            board[pos] |= COLOR_MASK;
     }
 
-    private static Player player(int i) {
-        return (i & 1) == 0 ? Player.While : Player.Black;
+    private static Piece getPiece(int raw) {
+        if (raw == 0)
+            return null;
+        return Piece.byBits(raw & Piece.PIECE_BIT_MASK);
     }
 
     public boolean canMove(int x, int y) {
@@ -44,7 +55,14 @@ public class Board {
 
         byte raw = raw(x, y);
 
-        return raw == 0 || (raw & Board.COLOR_MASK) == 0 ^ white;
+        return raw == 0 || (raw & COLOR_MASK) == 0 ^ white;
+    }
+
+    public boolean isPieceInColor(int pos, boolean white) {
+        byte raw = board[pos];
+        if (raw == 0)
+            return false;
+        return rawIsWhite(raw) == white;
     }
 
     public boolean isPieceInColor(int x, int y, boolean white) {
@@ -68,12 +86,20 @@ public class Board {
         return board[y * 8 + x];
     }
 
+    public final byte raw(int pos) {
+        return board[pos];
+    }
+
+    public int pieceBits(int pos) {
+        return board[pos] & Piece.PIECE_BIT_MASK;
+    }
+
     public Piece piece(int pos) {
         return getPiece(board[pos]);
     }
 
     public Piece piece(int x, int y) {
-        return Board.getPiece(raw(x, y));
+        return getPiece(raw(x, y));
     }
 
     public boolean isEmpty(int x, int y) {
@@ -149,10 +175,10 @@ public class Board {
         return board[pos];
     }
 
-    public int apply(Move move) {
-        int rawPosFrom = move.posFrom();
-        int rawPosTo = move.posTo();
-        if (move.getPiece() == Piece.King) {
+    public int apply(int rawMove) {
+        int rawPosFrom = Move.posFrom(rawMove);
+        int rawPosTo = Move.posTo(rawMove);
+        if (Move.piece(rawMove) == Piece.King.bits) {
             int dx = Position.dx(rawPosFrom, rawPosTo);
             if (Math.abs(dx) > 1) {
                 int row = Position.y(rawPosFrom);
@@ -173,16 +199,20 @@ public class Board {
         }
         byte temp = board[rawPosTo];
         set(rawPosTo, get(rawPosFrom));
-        if (move.isPromotion())
-            set(rawPosTo, pieceToRaw(move.getPiecePromoted(), isWhite(rawPosFrom)));
+        int promoted = Move.piecePromoted(rawMove);
+        if (promoted != 0) {
+            set(rawPosTo, (byte) promoted);
+            setColor(rawPosTo, isWhite(rawPosFrom));
+        }
         clear(rawPosFrom);
         return temp;
     }
 
-    public void revertMove(Move move, int stateData) {
-        int rawPosFrom = move.posFrom();
-        int rawPosTo = move.posTo();
-        if (move.getPiece() == Piece.King) {
+    public void revertMove(int rawMove, int stateData) {
+        int rawPosFrom = Move.posFrom(rawMove);
+        int rawPosTo = Move.posTo(rawMove);
+        int piece = Move.piece(rawMove);
+        if (piece == Piece.King.bits) {
             int dx = Position.dx(rawPosFrom, rawPosTo);
             if (Math.abs(dx) > 1) {
                 int row = Position.y(rawPosFrom);
@@ -201,8 +231,11 @@ public class Board {
                 return;
             }
         }
-        set(move.getPiece(), move.sx(), move.sy(), isWhite(move.posTo()));
-        set(move.posTo(), (byte) (stateData & 0xFF));
+
+        set(rawPosFrom, (byte) piece);
+        setColor(rawPosFrom, isWhite(rawPosTo));
+
+        set(Move.posTo(rawMove), (byte) (stateData & 0xFF));
     }
 
     private void clear(int pos) {

@@ -2,14 +2,16 @@ package kk.chessbot.moves;
 
 import kk.chessbot.Board;
 import kk.chessbot.Piece;
+import kk.chessbot.wrappers.Move;
 
 import static kk.chessbot.wrappers.Move.*;
 
 public class Moves {
 
-    private static final MoveGenerator[] moveGenerators = new MoveGenerator[Piece.values().length];
+    public static final int MAX_MOVES_IN_TURN = 218;
+    private static final PieceMoveGenerator[] PIECE_MOVE_GENERATORS = new PieceMoveGenerator[Piece.values().length];
 
-    private static final MoveGenerator pawn = (board, x, y, white, out) -> {
+    private static final PieceMoveGenerator pawn = (board, x, y, white, out) -> {
         int partial = partial(Piece.Pawn, x, y);
 
         int dir = white ? 1 : -1;
@@ -58,13 +60,13 @@ public class Moves {
             out.accept(compose(partial, rightX, forwardY, FLAG_CAPTURE));
     };
 
-    public static final MoveGenerator king = (board, x, y, white, out) -> {
+    public static final PieceMoveGenerator king = (board, x, y, white, out) -> {
         int partial = partial(Piece.King, x, y);
         for (int i = 0; i < 9; i++)
             acceptMoveIfPossible(out, board, white, partial,x - 1 + i % 3, y - 1 + i / 3);
     };
 
-    public static final MoveGenerator bishop = (board, x, y, white, out) -> {
+    public static final PieceMoveGenerator bishop = (board, x, y, white, out) -> {
         int partial = partial(Piece.Bishop, x, y);
         for (int xx = x + 1, yy = y + 1; xx < 8 && yy < 8; xx++, yy++) {
             if (board.isEmpty(xx, yy))
@@ -107,7 +109,7 @@ public class Moves {
         }
     };
 
-    public static final MoveGenerator rook = (board, x, y, white, out) -> {
+    public static final PieceMoveGenerator rook = (board, x, y, white, out) -> {
         int partial = partial(Piece.Rook, x, y);
         for (int xx = x + 1; xx < 8; xx++) {
             if (board.isEmpty(xx, y))
@@ -151,12 +153,13 @@ public class Moves {
     };
 
 
-    public static final MoveGenerator queen = (board, x, y, white, out) -> {
-        rook.generateMoves(board, x, y, white, out);
-        bishop.generateMoves(board, x, y, white, out);
+    public static final PieceMoveGenerator queen = (board, x, y, white, out) -> {
+        int partial = partial(Piece.Queen, x, y);
+        rook.generateMoves(board, x, y, white, mv -> out.accept(Move.compose(partial, mv)));
+        bishop.generateMoves(board, x, y, white, mv -> out.accept(Move.compose(partial, mv)));
     };
 
-    public static final MoveGenerator knight = (board, x, y, white, out) -> {
+    public static final PieceMoveGenerator knight = (board, x, y, white, out) -> {
         int partial = partial(Piece.Knight, x, y);
         acceptMoveIfPossible(out, board, white, partial, x + 2, y + 1);
         acceptMoveIfPossible(out, board, white, partial, x + 2, y - 1);
@@ -175,16 +178,16 @@ public class Moves {
     }
 
     static {
-        moveGenerators[Piece.Pawn.ordinal()] = pawn;
-        moveGenerators[Piece.Knight.ordinal()] = knight;
-        moveGenerators[Piece.Bishop.ordinal()] = bishop;
-        moveGenerators[Piece.Rook.ordinal()] = rook;
-        moveGenerators[Piece.Queen.ordinal()] = queen;
-        moveGenerators[Piece.King.ordinal()] = king;
+        PIECE_MOVE_GENERATORS[Piece.Pawn.ordinal()] = pawn;
+        PIECE_MOVE_GENERATORS[Piece.Knight.ordinal()] = knight;
+        PIECE_MOVE_GENERATORS[Piece.Bishop.ordinal()] = bishop;
+        PIECE_MOVE_GENERATORS[Piece.Rook.ordinal()] = rook;
+        PIECE_MOVE_GENERATORS[Piece.Queen.ordinal()] = queen;
+        PIECE_MOVE_GENERATORS[Piece.King.ordinal()] = king;
     }
 
-    public static MoveGenerator getGenerator(Piece piece) {
-        return moveGenerators[piece.ordinal()];
+    public static PieceMoveGenerator getGenerator(Piece piece) {
+        return PIECE_MOVE_GENERATORS[piece.ordinal()];
     }
 
 

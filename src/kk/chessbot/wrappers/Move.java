@@ -6,14 +6,20 @@ import static kk.chessbot.wrappers.Position.position;
 
 public class Move {
     public static final int FLAG_CAPTURE = 1 << 18;
+    private static final int PARTIAL_BIT_LEN = 12;
+    private static final int MASK_PARTIAL = (1 << PARTIAL_BIT_LEN) - 1;
     private final int moveData;
 
-    public Move(int rawMoveData) {
+    private Move(int rawMoveData) {
         moveData = rawMoveData;
     }
 
     public Move(Piece piece, Piece promoted, int sx, int sy, int dx, int dy, int flags) {
         this(raw(piece, promoted, sx, sy, dx, dy, flags));
+    }
+
+    public Move(Piece piece, Piece promoted, int rawSrcPos, int rawDstPos, int flags) {
+        moveData = raw(piece, promoted, rawSrcPos, rawDstPos, flags);
     }
 
     public static int raw(Piece piece, int posFrom, int posTo, int flags) {
@@ -22,7 +28,6 @@ public class Move {
                 | posTo << 12
                 | flags;
     }
-
 
     public static int raw(Piece piece, Piece promoted, int posFrom, int posTo, int flags) {
         return piece.bits
@@ -50,12 +55,12 @@ public class Move {
                 | dy << 15
                 | flags;
     }
+
     public static int partial(Piece piece, int sx, int sy) {
         return piece.bits
                 | sx << 6
                 | sy << 9;
     }
-
 
     public static int compose(int partial, int dx, int dy, int flags) {
         return partial
@@ -85,12 +90,15 @@ public class Move {
                 | dy << 15;
     }
 
-
-    public Move(Piece piece, Piece promoted, int rawSrcPos, int rawDstPos, int flags) {
-        moveData = raw(piece, promoted, rawSrcPos, rawDstPos, flags);
+    public static int compose(int partial, int otherMove) {
+        return partial | (otherMove & ~MASK_PARTIAL);
     }
 
-    public static Move move(String move) {
+    public static Move wrap(int raw) {
+        return new Move(raw);
+    }
+
+    public static Move from(String move) {
         boolean isPawn = move.charAt(1) <= '9';
         Piece piece = isPawn ? Piece.Pawn : Piece.pieceByChar(move.charAt(0));
         int current = isPawn ? 0 : 1;
@@ -108,6 +116,22 @@ public class Move {
             promoted = Piece.pieceByChar(move.charAt(current));
 
         return new Move(piece, promoted, rawFrom, rawTo, flags);
+    }
+
+    public static int posTo(int rawMove) {
+        return rawMove >> 12 & 63;
+    }
+
+    public static int posFrom(int rawMove) {
+        return rawMove >> 6 & 63;
+    }
+
+    public static int piece(int rawMove) {
+        return rawMove & 0x7;
+    }
+
+    public static int piecePromoted(int rawMove) {
+        return rawMove >> 3 & 0x7;
     }
 
     public String toLongNotation() {
@@ -134,19 +158,19 @@ public class Move {
     }
 
     public final int sx() {
-        return (moveData >> 6 & 0x7);
+        return moveData >> 6 & 0x7;
     }
 
     public final int sy() {
-        return (moveData >> 9 & 0x7);
+        return moveData >> 9 & 0x7;
     }
 
     public final int dx() {
-        return (moveData >> 12 & 0x7);
+        return moveData >> 12 & 0x7;
     }
 
     public final int dy() {
-        return (moveData >> 15 & 0x7);
+        return moveData >> 15 & 0x7;
     }
 
     public final boolean flag(int flag) {
@@ -176,7 +200,7 @@ public class Move {
         return moveData >> 12 & 63;
     }
 
-    public boolean isPromotion() {
-        return (moveData >> 3 & 7) != 0;
+    public int raw() {
+        return moveData;
     }
 }

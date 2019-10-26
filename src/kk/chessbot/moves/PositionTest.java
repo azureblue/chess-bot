@@ -16,7 +16,6 @@ class PositionTest {
         assertPositionXY(0, 0, position("a1"));
     }
 
-
     private void assertPositionXY(int expectedX, int expectedY, Position pos) {
         assertEquals(expectedX, pos.x());
         assertEquals(expectedY, pos.y());

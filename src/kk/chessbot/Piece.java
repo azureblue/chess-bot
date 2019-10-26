@@ -8,22 +8,23 @@ public enum Piece {
     Queen('Q', 0b101),
     King('K', 0b110);
 
+    public static final byte PIECE_BIT_MASK = 0b111;
     public final char symbol;
     public final int bits;
 
     private static final Piece[] lookup = new Piece[127];
-    private static final Piece[] valuesByButs = new Piece[8];
+    private static final Piece[] valuesByBits = new Piece[8];
 
     static {
         for (Piece piece : values()) {
             lookup[Character.toUpperCase(piece.symbol)] = piece;
             lookup[Character.toLowerCase(piece.symbol)] = piece;
-            valuesByButs[piece.bits] = piece;
+            valuesByBits[piece.bits] = piece;
         }
     }
 
     public static Piece byBits(int bits) {
-        return valuesByButs[bits];
+        return valuesByBits[bits];
     }
 
     public static Piece pieceByChar(char ch) {
@@ -35,8 +36,8 @@ public enum Piece {
             throw new IllegalStateException("no matching piece for character: " + unicodeSymbol);
 
         if (unicodeSymbol > '\u2659')
-            return valuesByButs['\u265F' - unicodeSymbol + 1];
-        return valuesByButs['\u2659' - unicodeSymbol + 1];
+            return valuesByBits['\u265F' - unicodeSymbol + 1];
+        return valuesByBits['\u2659' - unicodeSymbol + 1];
     }
 
     public char getUnicodeSymbol(boolean white) {

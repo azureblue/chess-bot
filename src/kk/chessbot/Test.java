@@ -1,5 +1,7 @@
 package kk.chessbot;
 
+import kk.chessbot.player.NotSoRandomPlayer;
+import kk.chessbot.player.RandomPlayer;
 import kk.chessbot.wrappers.Move;
 
 import java.util.Random;
@@ -10,46 +12,65 @@ import static kk.chessbot.moves.BoardUtils.fromString;
 public class Test {
     public static void main(String[] args) {
 
-            Random r1 = new Random(1234);
-            Random r2 = new Random(12345);
+//            Random r1 = new Random(12344);
+//            Random r2 = new Random(12344);
+        Random seeder = new Random();
 
-            Board p1Board = fromString("" +
-                    "♜♞♝♛♚♝♞♜" +
-                    "♟♟♟♟♟♟♟♟" +
-                    "        " +
-                    "        " +
-                    "        " +
-                    "        " +
-                    "♙♙♙♙♙♙♙♙" +
-                    "♖♘♗♕♔♗♘♖");
+        long seed1 = seeder.nextLong();
+        long seed2 = seeder.nextLong();
 
-            Board p2Board = fromString("" +
-                    "♜♞♝♛♚♝♞♜" +
-                    "♟♟♟♟♟♟♟♟" +
-                    "        " +
-                    "        " +
-                    "        " +
-                    "        " +
-                    "♙♙♙♙♙♙♙♙" +
-                    "♖♘♗♕♔♗♘♖");
+        System.out.println(seed1);
+        System.out.println(seed2);
 
-            RandomPlayer white = new RandomPlayer(p1Board, true, r1);
-            RandomPlayer black = new RandomPlayer(p2Board, false, r2);
+        Random r1 = new Random(seed1);
+        Random r2 = new Random(seed2);
 
-            Scanner sc = new Scanner(System.in);
-            while (true) {
 
-                Move whiteMove = white.move();
-                System.out.println("white going " + whiteMove.toLongNotation());
-                white.applyMove(whiteMove);
-                black.applyMove(whiteMove);
-                System.out.println(p1Board.toUnicodeMultiline());
-                Move blackMove = black.move();
-                System.out.println("black going " + blackMove.toLongNotation());
-                black.applyMove(blackMove);
-                white.applyMove(blackMove);
-                System.out.println(p1Board.toUnicodeMultiline());
+        Board startingBoard = fromString("" +
+                "♜♞♝♛♚♝♞♜" +
+                "♟♟♟♟♟♟♟♟" +
+                "        " +
+                "        " +
+                "        " +
+                "        " +
+                "♙♙♙♙♙♙♙♙" +
+                "♖♘♗♕♔♗♘♖");
+
+        RandomPlayer white = new RandomPlayer(startingBoard, Side.Black, r1);
+        NotSoRandomPlayer black = new NotSoRandomPlayer(startingBoard, Side.White, r2);
+
+        Scanner sc = new Scanner(System.in);
+        Board temp = new Board();
+        while (true) {
+            white.getBoard(temp);
+            int blackPieces = PiecePositions.countPieces(temp, Side.Black);
+            black.getBoard(temp);
+            int whitePieces = PiecePositions.countPieces(temp, Side.White);
+            System.out.println("" + blackPieces + " " + whitePieces);
+            if (blackPieces == 1 || whitePieces == 1) {
+                System.out.println("end game");
+                break;
             }
+
+            Move whiteMove = white.makeMove(12314);
+
+            white.applyMove(whiteMove);
+            black.applyMove(whiteMove);
+
+            System.out.println("white going " + whiteMove.toLongNotation());
+//                System.out.println(white.board);
+//                sc.nextLine();
+            Move blackMove = black.makeMove(12314);
+
+            white.applyMove(blackMove);
+            black.applyMove(blackMove);
+
+
+            System.out.println("black going " + blackMove.toLongNotation());
+            white.getBoard(temp);
+            System.out.println(temp);
+//                sc.nextLine();
+        }
 
 
     }

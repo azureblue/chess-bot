@@ -1,7 +1,15 @@
 package kk.chessbot;
 
 public class BitBoard {
+    public final static BitBoard MASK_ALL = new BitBoard(0xffffffffffffffffL);
     private long boardBits = 0;
+
+    public BitBoard() {
+    }
+
+    public BitBoard(long boardBits) {
+        this.boardBits = boardBits;
+    }
 
     public void clear() {
         boardBits = 0;

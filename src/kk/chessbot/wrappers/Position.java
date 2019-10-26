@@ -1,7 +1,5 @@
 package kk.chessbot.wrappers;
 
-import java.util.Objects;
-
 public class Position {
 
     private final short position;

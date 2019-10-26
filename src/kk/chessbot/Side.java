@@ -1,10 +1,10 @@
 package kk.chessbot;
 
-public enum Player {
-    While(true), Black(false);
+public enum Side {
+    White(true), Black(false);
     public final boolean isWhite;
 
-    Player(boolean isWhite) {
+    Side(boolean isWhite) {
         this.isWhite = isWhite;
     }
 }
