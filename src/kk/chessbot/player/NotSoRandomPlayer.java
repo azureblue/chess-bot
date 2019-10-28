@@ -7,7 +7,6 @@ import kk.chessbot.Side;
 import kk.chessbot.moves.MoveGenerator;
 import kk.chessbot.moves.Moves;
 import kk.chessbot.wrappers.Move;
-import org.apiguardian.api.API;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +26,7 @@ public class NotSoRandomPlayer implements Player {
 
     private ArrayList<MoveValuePair> moveList = new ArrayList<>(Moves.MAX_MOVES_IN_TURN);
     private TrivialEvaluator evaluator = new TrivialEvaluator();
-    
+
     public NotSoRandomPlayer(Board board, Side side) {
         this(board, side, new Random());
     }
@@ -55,44 +54,31 @@ public class NotSoRandomPlayer implements Player {
         bitBoard.clear();
         board.getPlayerMask(currentColor, bitBoard);
         int moveCount = moveGenerator.generateMoves(board, bitBoard, moves[level]);
-        if (currentColor == this.white) {
-            int myVal = currentColor ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-            for (int i = 0; i < moveCount; i++) {
-                int move = moves[level][i];
-                int localVal = currentVal + evaluator.evaluateMove(move, board);
+        int myVal = currentColor ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        for (int i = 0; i < moveCount; i++) {
+            int move = moves[level][i];
+            int valueAfterMove;
+            int moveEv = evaluator.evaluateMove(move, board);
+            int localVal = currentVal + moveEv;
+            if (Math.abs(moveEv) > 1000)
+                valueAfterMove = localVal;
+            else {
                 int apply = board.apply(move);
-                int valueAfterMove = findMoves(level + 1, !currentColor, localVal);
-                if (currentColor && myVal < valueAfterMove)
-                    myVal = valueAfterMove;
-                else if (!currentColor && myVal > valueAfterMove)
-                    myVal = valueAfterMove;
-                board.revertMove(move, apply);
-                if (level == 0) {
-                    moveList.add(new MoveValuePair(Move.wrap(move), valueAfterMove));
-                }
-            }
-            return myVal;
-        } else {
-            int myVal = currentColor ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-            for (int i = 0; i < moveCount; i++) {
-                int move = moves[level][i];
-                if (board.piece(Move.posTo(move)) == Piece.King)
-                    return currentColor ? TrivialEvaluator.KING_VAL : -TrivialEvaluator.KING_VAL;
-            }
-            for (int i = 0; i < moveCount; i++) {
-                int move = moves[level][i];
-                int localVal = currentVal + evaluator.evaluateMove(move, board);
-                int apply = board.apply(move);
-                int valueAfterMove = findMoves(level + 1, !currentColor, localVal);
-                if (currentColor && myVal < valueAfterMove)
-                    myVal = valueAfterMove;
-                else if (!currentColor && myVal > valueAfterMove)
-                    myVal = valueAfterMove;
+                valueAfterMove = findMoves(level + 1, !currentColor, localVal);
                 board.revertMove(move, apply);
             }
-            return myVal;
 
+            if (currentColor && myVal < valueAfterMove)
+                myVal = valueAfterMove;
+            else if (!currentColor && myVal > valueAfterMove)
+                myVal = valueAfterMove;
+
+            if (level == 0) {
+                moveList.add(new MoveValuePair(Move.wrap(move), valueAfterMove));
+            }
         }
+        return myVal;
+
     }
 
     private void setDepth(int level) {

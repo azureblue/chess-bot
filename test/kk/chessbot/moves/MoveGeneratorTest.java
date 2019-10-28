@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static kk.chessbot.moves.BoardUtils.board;
-import static kk.chessbot.moves.TestUtils.set;
+import static kk.chessbot.moves.TestUtils.moves;
 import static kk.chessbot.moves.TestUtils.testMoves;
 
 class MoveGeneratorTest {
@@ -26,7 +26,7 @@ class MoveGeneratorTest {
                 .build(), BitBoard.MASK_ALL);
 
 
-        testMoves(set(Move.from("a2a3"),
+        testMoves(moves(Move.from("a2a3"),
                 Move.from("a2a4"),
                 Move.from("h2h3"),
                 Move.from("h2h4"),

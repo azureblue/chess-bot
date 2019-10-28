@@ -7,7 +7,6 @@ import kk.chessbot.moves.MoveGenerator;
 import kk.chessbot.wrappers.Move;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 
 public class RandomAvoidCheckmatePlayer implements Player{

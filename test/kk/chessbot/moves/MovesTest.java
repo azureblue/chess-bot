@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static kk.chessbot.moves.BoardUtils.board;
 import static kk.chessbot.moves.BoardUtils.fromString;
-import static kk.chessbot.moves.TestUtils.set;
+import static kk.chessbot.moves.TestUtils.moves;
 import static kk.chessbot.moves.TestUtils.testMoves;
 
 class MovesTest {
@@ -15,7 +15,7 @@ class MovesTest {
 
     @Test
     void test_pawn_moves_from_first_line() {
-        testMoves(set(
+        testMoves(moves(
                 Move.from("a2a3"),
                 Move.from("a2a4"),
                 Move.from("h2h3"),
@@ -35,7 +35,7 @@ class MovesTest {
 
     @Test
     void test_pawn_promotion() {
-        testMoves(set(
+        testMoves(moves(
                 Move.from("a7a8r"),
                 Move.from("a7a8q"),
                 Move.from("a7a8n"),
@@ -51,7 +51,7 @@ class MovesTest {
                         .build()
         );
 
-        testMoves(set(
+        testMoves(moves(
                 Move.from("a7xb8r"),
                 Move.from("a7xb8q"),
                 Move.from("a7xb8n"),
@@ -64,7 +64,7 @@ class MovesTest {
 
         );
 
-        testMoves(set(
+        testMoves(moves(
                 Move.from("d2xc1R"),
                 Move.from("d2xc1Q"),
                 Move.from("d2xc1N"),
@@ -81,7 +81,7 @@ class MovesTest {
 
     @Test
     void test_pawn_moves() {
-        testMoves(set(
+        testMoves(moves(
                 Move.from("e2e3"),
                 Move.from("e2xd3"),
                 Move.from("f5xe6"),
@@ -107,7 +107,7 @@ class MovesTest {
 
     @Test
     void test_queen_moves() {
-        testMoves(set(
+        testMoves(moves(
                 Move.from("Qa8b8"),
                 Move.from("Qa8b7"),
                 Move.from("Qa8a7")
@@ -126,7 +126,7 @@ class MovesTest {
 
     @Test
     void test_rook_moves() {
-        testMoves(set(
+        testMoves(moves(
                 Move.from("Rc5c6"),
                 Move.from("Rc5c7"),
                 Move.from("Rc5c8"),
@@ -158,7 +158,7 @@ class MovesTest {
 
     @Test
     void test_knight_moves() {
-        testMoves(set(
+        testMoves(moves(
                 Move.from("Na1b3"),
                 Move.from("Nc3a2"),
 

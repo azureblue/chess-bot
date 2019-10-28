@@ -1,8 +1,6 @@
 package kk.chessbot;
 
 import kk.chessbot.player.NotSoRandomPlayer;
-import kk.chessbot.player.RandomPlayer;
-import kk.chessbot.wrappers.Move;
 
 import java.util.Random;
 import java.util.Scanner;
@@ -27,7 +25,7 @@ public class PerfTest {
 
         NotSoRandomPlayer black = new NotSoRandomPlayer(board, Side.Black, r1);
         Scanner sc = new Scanner(System.in);
-        sc.nextLine();
+         sc.nextLine();
         System.out.println(black.makeMove());
 
     }

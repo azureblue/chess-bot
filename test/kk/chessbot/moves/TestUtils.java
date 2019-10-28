@@ -2,6 +2,9 @@ package kk.chessbot.moves;
 
 import kk.chessbot.BitBoard;
 import kk.chessbot.Board;
+import kk.chessbot.Fen;
+import kk.chessbot.GameState;
+import kk.chessbot.Side;
 import kk.chessbot.wrappers.Move;
 import kk.chessbot.wrappers.Position;
 import org.junit.jupiter.api.Assertions;
@@ -11,15 +14,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static java.util.stream.StreamSupport.stream;
-
 public class TestUtils {
 
-    public static Set<Move> set(Move... expectedMoves) {
+    public static Set<Move> moves(Move... expectedMoves) {
         return new HashSet<>(Arrays.asList(expectedMoves));
     }
 
-    public static Set<String> set(String... expectedMoves) {
+    public static Set<String> moves(String... expectedMoves) {
         return new HashSet<>(Arrays.asList(expectedMoves));
     }
 
@@ -57,6 +58,14 @@ public class TestUtils {
 
     public static <T> void testMoves(Set<T> expectedPossible, T actual) {
         Assertions.assertTrue(expectedPossible.contains(actual), "actual move: " + actual);
+    }
+
+    public static GameState gameState(Board board, Side side) {
+        return new GameState(board, side);
+    }
+
+    public static GameState gameState(Fen fen) {
+        return new GameState(fen.createBoard(), fen.activeSide());
     }
 
 }
