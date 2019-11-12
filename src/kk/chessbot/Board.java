@@ -198,12 +198,19 @@ public class Board {
             }
         }
         byte temp = board[rawPosTo];
-        set(rawPosTo, get(rawPosFrom));
-        int promoted = Move.piecePromoted(rawMove);
-        if (promoted != 0) {
-            set(rawPosTo, (byte) promoted);
-            setColor(rawPosTo, isWhite(rawPosFrom));
-        }
+        if (Move.piece(rawMove) == Piece.Pawn.bits) {
+            int promoted = Move.piecePromoted(rawMove);
+            if (promoted != 0) {
+                set(rawPosTo, (byte) promoted);
+                setColor(rawPosTo, isWhite(rawPosFrom));
+            } else
+                set(rawPosTo, get(rawPosFrom));
+            if (Move.isEnPassant(rawMove)) {
+                short capturedPawnPos = Position.toRaw(Position.x(rawPosTo), Position.y(rawPosFrom));
+                clear(capturedPawnPos);
+            }
+        } else
+            set(rawPosTo, get(rawPosFrom));
         clear(rawPosFrom);
         return temp;
     }
@@ -233,9 +240,11 @@ public class Board {
         }
 
         set(rawPosFrom, (byte) piece);
-        setColor(rawPosFrom, isWhite(rawPosTo));
-
+        boolean white = isWhite(rawPosTo);
+        setColor(rawPosFrom, white);
         set(Move.posTo(rawMove), (byte) (stateData & 0xFF));
+        if (Move.isEnPassant(rawMove))
+            set(Piece.Pawn, Position.x(rawPosTo), Position.y(rawPosFrom), !white);
     }
 
     private void clear(int pos) {

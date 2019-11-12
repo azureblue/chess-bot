@@ -33,6 +33,17 @@ public class MoveGenerator {
         }
     }
 
+    public int countMoves(Board board, BitBoard mask) {
+        int[] count = new int[1];
+        long boardBits = mask.getBoardBits();
+        for (int pos = 0; pos < 64; pos++) {
+            if ((boardBits & 1) != 0)
+                generateMovesAt(board, pos, rawMove -> count[0]++);
+            boardBits >>= 1;
+        }
+        return count[0];
+    }
+
     public int generateMoves(Board board, BitBoard mask, int[] out) {
         long boardBits = mask.getBoardBits();
         ArrayFiller filler = new ArrayFiller(out);

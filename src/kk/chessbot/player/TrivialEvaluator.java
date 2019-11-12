@@ -5,15 +5,15 @@ import kk.chessbot.Piece;
 import kk.chessbot.wrappers.Move;
 
 public class TrivialEvaluator {
-    public static final int KING_VAL = 10000;
+    public static final int KING_VAL = 10000000;
     private int[] valueByPieceBits = new int[8];
     {
         valueByPieceBits[0] = 0;
-        valueByPieceBits[Piece.Pawn.bits] = 1;
-        valueByPieceBits[Piece.Bishop.bits] = 3;
-        valueByPieceBits[Piece.Knight.bits] = 3;
-        valueByPieceBits[Piece.Rook.bits] = 4;
-        valueByPieceBits[Piece.Queen.bits] = 7;
+        valueByPieceBits[Piece.Pawn.bits] = 1000;
+        valueByPieceBits[Piece.Bishop.bits] = 3000;
+        valueByPieceBits[Piece.Knight.bits] = 3000;
+        valueByPieceBits[Piece.Rook.bits] = 5000;
+        valueByPieceBits[Piece.Queen.bits] = 9000;
         valueByPieceBits[Piece.King.bits] = KING_VAL;
     }
 

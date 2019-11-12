@@ -6,6 +6,7 @@ import static kk.chessbot.wrappers.Position.position;
 
 public class Move {
     public static final int FLAG_CAPTURE = 1 << 18;
+    public static final int FLAG_EN_PASSANT = 1 << 19;
     private static final int PARTIAL_BIT_LEN = 12;
     private static final int MASK_PARTIAL = (1 << PARTIAL_BIT_LEN) - 1;
     private final int moveData;
@@ -112,8 +113,12 @@ public class Move {
         int rawTo = position(move, current).raw();
         current+=2;
         Piece promoted = null;
-        if (current < move.length())
+        if (current < move.length()) {
+            if (move.endsWith("ep") || move.endsWith("e.p."))
+                flags |= FLAG_EN_PASSANT;
+            else
             promoted = Piece.pieceByChar(move.charAt(current));
+        }
 
         return new Move(piece, promoted, rawFrom, rawTo, flags);
     }
@@ -134,6 +139,10 @@ public class Move {
         return rawMove >> 3 & 0x7;
     }
 
+    public static boolean isEnPassant(int rawMove) {
+        return (rawMove & FLAG_EN_PASSANT) != 0;
+    }
+
     public String toLongNotation() {
         StringBuilder sb = new StringBuilder(8);
         Piece piece = getPiece();
@@ -146,6 +155,8 @@ public class Move {
         Piece piecePromoted = getPiecePromoted();
         if (piecePromoted != null)
             sb.append(piecePromoted.symbol);
+        if (flag(FLAG_EN_PASSANT))
+            sb.append("e.p.");
         return sb.toString();
     }
 

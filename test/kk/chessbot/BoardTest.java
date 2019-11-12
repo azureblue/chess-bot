@@ -11,6 +11,50 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BoardTest {
 
     @Test
+    void test_en_passant() {
+        Board board = board()
+                .with(Piece.Pawn, true, position("b5"))
+                .with(Piece.Pawn, false, position("c5"))
+                .build();
+
+        Move move = Move.from("b5xc6e.p.");
+        int apply = board.apply(move.raw());
+
+        assertEquals(board()
+                .with(Piece.Pawn, true, position("c6"))
+                .build(), board);
+
+        board.revertMove(move.raw(), apply);
+
+        assertEquals(board()
+                .with(Piece.Pawn, true, position("b5"))
+                .with(Piece.Pawn, false, position("c5"))
+                .build(), board);
+    }
+
+    @Test
+    void test_en_passant_black() {
+        Board board = board()
+                .with(Piece.Pawn, true, position("a4"))
+                .with(Piece.Pawn, false, position("b4"))
+                .build();
+
+        Move move = Move.from("b4xa3e.p.");
+        int apply = board.apply(move.raw());
+
+        assertEquals(board()
+                .with(Piece.Pawn, false, position("a3"))
+                .build(), board);
+
+        board.revertMove(move.raw(), apply);
+
+        assertEquals(board()
+                .with(Piece.Pawn, true, position("a4"))
+                .with(Piece.Pawn, false, position("b4"))
+                .build(), board);
+    }
+
+    @Test
     void test_castling_queenside_w() {
         Board board = new Board();
 
@@ -31,6 +75,8 @@ class BoardTest {
                 .with(Piece.Rook, true, position("a1"))
                 .build(), board);
     }
+
+
 
     @Test
     void test_castling_kingside_w() {
