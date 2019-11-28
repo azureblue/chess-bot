@@ -13,14 +13,14 @@ import static kk.chessbot.moves.BoardUtils.fromString;
 import static kk.chessbot.moves.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class NotSoRandomPlayerTest {
+class AlphaBetaPlayerTest {
 
     private static String makeMove(Board board, Side side) {
-        return new NotSoRandomPlayer(board, side).makeMove().toLongNotation();
+        return new AlphaBetaPlayer(board, side).makeMove().toLongNotation();
     }
 
     private static String makeMove(GameState gameState) {
-        return new NotSoRandomPlayer(gameState.getBoard(), gameState.getSide()).makeMove().toLongNotation();
+        return new AlphaBetaPlayer(gameState.getBoard(), gameState.getSide()).makeMove().toLongNotation();
     }
 
     @Test
@@ -189,7 +189,7 @@ class NotSoRandomPlayerTest {
 
     @Test
     void should_move_Ng4f6() {
-        testMoves(moves("Ng4f6"), makeMove(gameState(fen("rn5r/4p1k1/p1p1p2p/2P3p1/P2P2n1/2NQ3P/6P1/5RK1 b - - 0 24"))));
+            testMoves(moves("Ng4f6"), makeMove(gameState(fen("rn5r/4p1k1/p1p1p2p/2P3p1/P2P2n1/2NQ3P/6P1/5RK1 b - - 0 24"))));
     }
 
 }

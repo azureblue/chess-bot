@@ -15,12 +15,12 @@ public class BitBoard {
         boardBits = 0;
     }
 
-    public boolean get(int x, int y) {
-        return (boardBits >> (y << 3 | x) & 1) == 1;
+    public void clear(int pos) {
+        boardBits &= ~(1L << (long) pos);
     }
 
-    public void set(int x, int y) {
-        boardBits |= 1 << (y << 3 | x);
+    public boolean get(int x, int y) {
+        return (boardBits >> (y << 3 | x) & 1) == 1;
     }
 
     public void set(int pos) {
@@ -44,5 +44,9 @@ public class BitBoard {
             sb.append('\n');
         }
         return sb.toString();
+    }
+
+    public void setBits(long boardBits) {
+        this.boardBits = boardBits;
     }
 }

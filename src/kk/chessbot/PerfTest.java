@@ -1,6 +1,6 @@
 package kk.chessbot;
 
-import kk.chessbot.player.NotSoRandomPlayer;
+import kk.chessbot.player.AlphaBetaPlayer;
 
 import java.util.Random;
 import java.util.Scanner;
@@ -23,7 +23,7 @@ public class PerfTest {
                 "♙♙♙♙ ♙♙♙" +
                 "♖♘♗ ♔ ♘♖"));
 
-        NotSoRandomPlayer black = new NotSoRandomPlayer(board, Side.Black, r1);
+        AlphaBetaPlayer black = new AlphaBetaPlayer(board, Side.Black, r1);
         Scanner sc = new Scanner(System.in);
          sc.nextLine();
         System.out.println(black.makeMove());

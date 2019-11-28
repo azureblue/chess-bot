@@ -13,53 +13,25 @@ import java.util.stream.StreamSupport;
 
 public class MoveGenerator {
 
-    public MoveGenerator() {
-    }
-
-    static class ArrayFiller {
-        private final int[] ar;
-        private int idx;
-
-        ArrayFiller(int[] ar) {
-            this.ar = ar;
-        }
-
-        public final void put(int val) {
-            ar[idx++] = val;
-        }
-
-        public int getIdx() {
-            return idx;
-        }
-    }
-
-    public int countMoves(Board board, BitBoard mask) {
-        int[] count = new int[1];
-        long boardBits = mask.getBoardBits();
-        for (int pos = 0; pos < 64; pos++) {
-            if ((boardBits & 1) != 0)
-                generateMovesAt(board, pos, rawMove -> count[0]++);
-            boardBits >>= 1;
-        }
-        return count[0];
-    }
+    private final Moves moves = new Moves();
+    private final ArrayFiller filler = new ArrayFiller(null);
 
     public int generateMoves(Board board, BitBoard mask, int[] out) {
+        filler.wrap(out);
         long boardBits = mask.getBoardBits();
-        ArrayFiller filler = new ArrayFiller(out);
         for (int pos = 0; pos < 64; pos++) {
             if ((boardBits & 1) != 0)
-                generateMovesAt(board, pos, filler::put);
+                generateMovesAt(board, pos, filler);
             boardBits >>= 1;
         }
         return filler.getIdx();
     }
 
     public IntStream moveStream(Board board, BitBoard mask) {
-
         Spliterator.OfInt moveSpliterator = Spliterators.spliteratorUnknownSize(new PrimitiveIterator.OfInt() {
             long boardBits = mask.getBoardBits();
             int[] localMoveArray = new int[500];
+            ArrayFiller filler = new ArrayFiller(localMoveArray);
             int moveCount = 0;
             int pos = 0;
 
@@ -67,10 +39,13 @@ public class MoveGenerator {
             public boolean hasNext() {
                 if (moveCount > 0)
                     return true;
+                filler.clear();
 
                 for (; pos < 64 && moveCount == 0; pos++) {
-                    if ((boardBits & 1) != 0)
-                        generateMovesAt(board, pos, rawMove -> localMoveArray[moveCount++] = rawMove);
+                    if ((boardBits & 1) != 0) {
+                        generateMovesAt(board, pos, filler);
+                        moveCount = filler.getIdx();
+                    }
                     boardBits >>= 1;
                 }
 
@@ -87,13 +62,14 @@ public class MoveGenerator {
 
     }
 
-    public void generateMovesAt(Board board, int pos, MoveConsumer moveConsumer) {
+    public void generateMovesAt(Board board, int pos, ArrayFiller out) {
         Piece piece = board.piece(pos);
         if (piece == null)
             return;
         int y = Position.y(pos);
         int x = Position.x(pos);
-        Moves.getGenerator(piece).generateMoves(board, x, y, board.isWhite(pos), moveConsumer);
+        moves.genMovesFor(piece, board, x, y, board.isWhite(pos), out);
 
     }
+
 }

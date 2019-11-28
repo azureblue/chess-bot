@@ -3,6 +3,7 @@ package kk.chessbot.player;
 import kk.chessbot.BitBoard;
 import kk.chessbot.Board;
 import kk.chessbot.Piece;
+import kk.chessbot.moves.ArrayFiller;
 import kk.chessbot.moves.MoveGenerator;
 import kk.chessbot.wrappers.Move;
 

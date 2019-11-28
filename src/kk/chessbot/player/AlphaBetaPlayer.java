@@ -7,27 +7,28 @@ import kk.chessbot.Side;
 import kk.chessbot.moves.MoveGenerator;
 import kk.chessbot.moves.Moves;
 import kk.chessbot.wrappers.Move;
+import kk.chessbot.wrappers.Position;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
-public class NotSoRandomPlayer implements Player {
+public class AlphaBetaPlayer implements Player {
 
     static {
         int v = 5;
-        System.out.println("NotSoRandomPlayer V" + v);
+        System.out.println("AlphaBetaPlayer V" + v);
     }
 
     private final Board board;
     private final boolean white;
     private final Random rand;
+    private final int depth;
 
     private int[][] moves = new int[7][Moves.MAX_MOVES_IN_TURN];
     private int[][] partialPaths = new int[7][7];
 
     private MoveGenerator moveGenerator = new MoveGenerator();
 
-    private BitBoard bitBoard = new BitBoard();
+    private BitBoard[] bitBoards = {new BitBoard(), new BitBoard()};
     private int maxLevel = 0;
 
     private ArrayList<MoveValuePair> moveList = new ArrayList<>(Moves.MAX_MOVES_IN_TURN);
@@ -37,14 +38,19 @@ public class NotSoRandomPlayer implements Player {
 
     private Move myLastMove = null;
 
-    public NotSoRandomPlayer(Board board, Side side) {
+    public AlphaBetaPlayer(Board board, Side side) {
         this(board, side, new Random());
     }
 
-    public NotSoRandomPlayer(Board board, Side side, Random rand) {
-        this.board = new Board(board);
+    public AlphaBetaPlayer(Board board, Side side, Random rand) {
+        this(board, side, rand, 6);
+    }
+
+    public AlphaBetaPlayer(Board startingBoard, Side side, Random random, int depth) {
+        this.board = new Board(startingBoard);
         this.white = side.isWhite;
-        this.rand = rand;
+        this.rand = random;
+        this.depth = depth;
     }
 
     public void applyMove(Move move) {
@@ -58,15 +64,19 @@ public class NotSoRandomPlayer implements Player {
         board.set(this.board);
     }
 
-    private int findMoves(int level, boolean currentColor, int currentVal) {
+    private int findMoves(int level, int alpha, int beta, boolean currentColor, int currentVal) {
         int multiplier = currentColor ? 1 : -1;
         if (level == maxLevel) {
             return currentVal;
         }
+        BitBoard bitBoardMy = bitBoards[level % 2];
+        BitBoard bitBoardOp = bitBoards[(level + 1) % 2];
 
-        bitBoard.clear();
-        board.getPlayerMask(currentColor, bitBoard);
-        int moveCount = moveGenerator.generateMoves(board, bitBoard, moves[level]);
+//        bitBoard.clear();
+//        board.getPlayerMask(currentColor, bitBoard);
+        long boardBitsMy = bitBoardMy.getBoardBits();
+        long boardBitsOp = bitBoardOp.getBoardBits();
+        int moveCount = moveGenerator.generateMoves(board, bitBoardMy, moves[level]);
         int myVal = currentColor ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         for (int i = 0; i < moveCount; i++) {
             int move = moves[level][i];
@@ -79,19 +89,26 @@ public class NotSoRandomPlayer implements Player {
             else {
                 int piece = Move.piece(move);
                 if (piece == Piece.King.bits)
-                    localVal -= 100 * multiplier;
+                    localVal -= 200 * multiplier;
 
                 if (level == 0 && myLastMove != null && Move.piece(myLastMove.raw()) == piece) {
-//                    System.out.println(Move.wrap(move));
-//                    System.out.println("asd");
                     localVal -= 100 * multiplier;
                 } else if (level > 1 && Move.piece(currentPath[level - 2]) == piece)
                     localVal -= 100 * multiplier;
 
-                int apply = board.apply(move);
                 currentPath[level] = move;
-                valueAfterMove = findMoves(level + 1, !currentColor, localVal);
-                board.revertMove(move, apply);
+
+                int nextLevel = level + 1;
+                if (nextLevel == maxLevel)
+                    valueAfterMove = localVal;
+                else {
+                    int apply = board.apply(move);
+                    updateBitBoard(level, move);
+                    valueAfterMove = findMoves(nextLevel, alpha, beta, !currentColor, localVal);
+                    bitBoardMy.setBits(boardBitsMy);
+                    bitBoardOp.setBits(boardBitsOp);
+                    board.revertMove(move, apply);
+                }
             }
 
             if (currentColor && myVal < valueAfterMove || !currentColor && myVal > valueAfterMove) {
@@ -100,10 +117,22 @@ public class NotSoRandomPlayer implements Player {
 //                partialPaths[level][level] = move;
             }
 
+            if (currentColor && alpha < myVal)
+                alpha = myVal;
+            else if (!currentColor && beta > myVal) {
+                beta = myVal;
+            }
+
+            if (alpha > beta) {
+                //System.out.println("alpha beta cutoff");
+                break;
+            }
+
             if (level == 0) {
                 moveList.add(new MoveValuePair(Move.wrap(move), valueAfterMove));
 //                paths.put(move, partialPaths[0].clone());
             }
+
         }
 
         return myVal;
@@ -116,6 +145,17 @@ public class NotSoRandomPlayer implements Player {
         }
     }
 
+    private void updateBitBoard(int level, int rawMove) {
+        int posFrom = Move.posFrom(rawMove);
+        bitBoards[level % 2].clear(posFrom);
+        int posTo = Move.posTo(rawMove);
+        bitBoards[level % 2].set(posTo);
+        if (Move.isEnPassant(rawMove)) {
+            bitBoards[(level + 1) % 2].clear(Position.toRaw(Position.x(posTo), Position.y(posFrom)));
+        } else if (Move.isCapture(rawMove))
+            bitBoards[(level + 1) % 2].clear(posTo);
+    }
+
     private void setDepth(int level) {
         maxLevel = level;
     }
@@ -123,9 +163,15 @@ public class NotSoRandomPlayer implements Player {
     public Move makeMove(int time) {
         moveList.clear();
         paths.clear();
+        bitBoards[0].clear();
+        bitBoards[1].clear();
+        board.getPlayerMask(white, bitBoards[0]);
+        board.getPlayerMask(!white, bitBoards[1]);
 
-        setDepth(4);
-        int myVal = findMoves(0, white, evaluator.evaluate(board));
+        setDepth(depth);
+        if (time < 20000)
+            setDepth(4);
+        int myVal = findMoves(0, Integer.MIN_VALUE, Integer.MAX_VALUE, white, evaluator.evaluate(board));
 //        if ((white && myVal < -2000) || (!white && myVal > 2000)) {
 //            moveList.clear();
 //

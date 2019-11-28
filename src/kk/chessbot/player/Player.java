@@ -9,6 +9,6 @@ public interface Player {
     void getBoard(Board board);
 
     default Move makeMove() {
-        return makeMove(5000);
+        return makeMove(20000);
     }
 }

@@ -143,6 +143,10 @@ public class Move {
         return (rawMove & FLAG_EN_PASSANT) != 0;
     }
 
+    public static boolean isCapture(int rawMove) {
+        return (rawMove & FLAG_CAPTURE) != 0;
+    }
+
     public String toLongNotation() {
         StringBuilder sb = new StringBuilder(8);
         Piece piece = getPiece();
