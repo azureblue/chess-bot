@@ -26,7 +26,6 @@ public class Simulator {
         Random r1 = new Random(seed1);
         Random r2 = new Random(seed2);
 
-
         Board startingBoard = fromString("" +
                 "♜♞♝♛♚♝♞♜" +
                 "♟♟♟♟♟♟♟♟" +
@@ -37,14 +36,13 @@ public class Simulator {
                 "♙♙♙♙♙♙♙♙" +
                 "♖♘♗♕♔♗♘♖");
 
-        AlphaBetaPlayer white = new AlphaBetaPlayer(startingBoard, Side.White, r1, 6);
-        AlphaBetaPlayer black = new AlphaBetaPlayer(startingBoard, Side.Black, r2, 4);
+        AlphaBetaPlayer white = new AlphaBetaPlayer(startingBoard, Side.White, r1, 4);
+        AlphaBetaPlayer black = new AlphaBetaPlayer(startingBoard, Side.Black, r2, 6);
 
         Scanner sc = new Scanner(System.in);
         sc.nextLine();
 
         Board temp = new Board();
-
         Map<String, Integer> positions = new HashMap<>();
         while (true) {
             white.getBoard(temp);
@@ -57,13 +55,12 @@ public class Simulator {
                 break;
             }
 
-            Move whiteMove = white.makeMove(12314);
+            Move whiteMove = white.makeMove(50000);
             System.out.println("white going " + whiteMove.toLongNotation());
-            if (temp.piece(whiteMove.posTo()) == Piece.King) {
+            if (temp.piece(whiteMove.posTo().raw()) == Piece.King) {
                 System.out.println("white wins");
                 break;
             }
-
 
             white.applyMove(whiteMove);
             black.applyMove(whiteMove);
@@ -81,7 +78,7 @@ public class Simulator {
 //                sc.nextLine();
             Move blackMove = black.makeMove(12314);
             System.out.println("black going " + blackMove.toLongNotation());
-            if (temp.piece(blackMove.posTo()) == Piece.King) {
+            if (temp.piece(blackMove.posTo().raw()) == Piece.King) {
                 System.out.println("black wins");
                 break;
             }
@@ -89,9 +86,6 @@ public class Simulator {
 
             white.applyMove(blackMove);
             black.applyMove(blackMove);
-
-
-
 
             white.getBoard(temp);
             boardString = temp.toUnicodeMultiline();

@@ -123,6 +123,54 @@ class MovesTest {
 //                            ABCDEFGH
         );
     }
+//
+//    @Test
+//    void test_castlings_white() {
+//        testMoves(moves(
+//                Move.from("Ke1d1"),
+//                Move.from("Ke1f1"),
+//                Move.from("Ke1e2"),
+//                Move.from("Ke1f2"),
+//                Move.from("Ke1d2"),
+//                Move.from("Ke1c1"),
+//                Move.from("Ke1g1")
+//                ), fromString("" +
+//                        /*8*/"♜   ♚  ♜" +
+//                        /*7*/"        " +
+//                        /*6*/"        " +
+//                        /*5*/"        " +
+//                        /*4*/"        " +
+//                        /*3*/"        " +
+//                        /*2*/"        " +
+//                        /*1*/"♖   ♔  ♖"),
+//                new CastlingStatus(0b1111), Position.position("e1")
+////                            ABCDEFGH
+//        );
+//    }
+//
+//    @Test
+//    void test_castlings_black() {
+//        testMoves(moves(
+//                Move.from("Ke8d8"),
+//                Move.from("Ke8f8"),
+//                Move.from("Ke8e7"),
+//                Move.from("Ke8f7"),
+//                Move.from("Ke8d7"),
+//                Move.from("Ke8c8"),
+//                Move.from("Ke8g8")
+//                ), fromString("" +
+//                        /*8*/"♜   ♚  ♜" +
+//                        /*7*/"        " +
+//                        /*6*/"        " +
+//                        /*5*/"        " +
+//                        /*4*/"        " +
+//                        /*3*/"        " +
+//                        /*2*/"        " +
+//                        /*1*/"♖   ♔  ♖"),
+//                new CastlingStatus(0b1111), Position.position("e8")
+////                            ABCDEFGH
+//        );
+//    }
 
     @Test
     void test_rook_moves() {

@@ -9,6 +9,11 @@ public class Moves {
 
     public static final int MAX_MOVES_IN_TURN = 218;
 
+    private static void acceptMoveIfPossible(ArrayFiller out, Board board, boolean playerIsWhite, int partial, int x, int y) {
+        if (board.canMoveOrTake(playerIsWhite, x, y))
+            out.put(compose(partial, x, y, board.isEmpty(x, y) ? 0 : FLAG_CAPTURE));
+    }
+
     private final void pawn(Board board, int x, int y, boolean white, ArrayFiller out) {
         int partial = partial(Piece.Pawn, x, y);
 
@@ -61,10 +66,10 @@ public class Moves {
     public final void king(Board board, int x, int y, boolean white, ArrayFiller out) {
         int partial = partial(Piece.King, x, y);
         for (int i = 0; i < 9; i++)
-            acceptMoveIfPossible(out, board, white, partial,x - 1 + i % 3, y - 1 + i / 3);
+            acceptMoveIfPossible(out, board, white, partial, x - 1 + i % 3, y - 1 + i / 3);
     }
 
-    private void diagonals(Piece piece, Board board, int x, int y, boolean white, ArrayFiller out){
+    private void diagonals(Piece piece, Board board, int x, int y, boolean white, ArrayFiller out) {
         int partial = partial(piece, x, y);
         for (int xx = x + 1, yy = y + 1; xx < 8 && yy < 8; xx++, yy++) {
             if (board.isEmpty(xx, yy))
@@ -150,6 +155,8 @@ public class Moves {
         }
     }
 
+    ;
+
     public final void knight(Board board, int x, int y, boolean white, ArrayFiller out) {
         int partial = partial(Piece.Knight, x, y);
         acceptMoveIfPossible(out, board, white, partial, x + 2, y + 1);
@@ -161,7 +168,7 @@ public class Moves {
         acceptMoveIfPossible(out, board, white, partial, x - 1, y + 2);
         acceptMoveIfPossible(out, board, white, partial, x + 1, y - 2);
         acceptMoveIfPossible(out, board, white, partial, x - 1, y - 2);
-    };
+    }
 
     public final void genMovesFor(Piece piece, Board board, int x, int y, boolean white, ArrayFiller out) {
         switch (piece) {
@@ -185,11 +192,6 @@ public class Moves {
                 king(board, x, y, white, out);
                 break;
         }
-    }
-
-    private static void acceptMoveIfPossible(ArrayFiller out, Board board, boolean playerIsWhite, int partial, int x, int y) {
-        if (board.canMoveOrTake(playerIsWhite, x, y))
-            out.put(compose(partial, x, y, board.isEmpty(x, y) ? 0 : FLAG_CAPTURE));
     }
 
 }

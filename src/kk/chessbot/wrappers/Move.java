@@ -147,6 +147,11 @@ public class Move {
         return (rawMove & FLAG_CAPTURE) != 0;
     }
 
+    public static boolean isCastling(int move) {
+        return piece(move) == Piece.King.bits && Position.dx(Move.posFrom(move), Move.posTo(move)) > 1;
+
+    }
+
     public String toLongNotation() {
         StringBuilder sb = new StringBuilder(8);
         Piece piece = getPiece();
@@ -207,12 +212,12 @@ public class Move {
         return toLongNotation();
     }
 
-    public int posFrom() {
-        return moveData >> 6 & 63;
+    public Position posFrom() {
+        return Position.position(moveData >> 6 & 63);
     }
 
-    public int posTo() {
-        return moveData >> 12 & 63;
+    public Position posTo() {
+        return Position.position(moveData >> 12 & 63);
     }
 
     public int raw() {

@@ -8,6 +8,7 @@ import kk.chessbot.wrappers.Position;
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
@@ -21,7 +22,7 @@ public class MoveGenerator {
         long boardBits = mask.getBoardBits();
         for (int pos = 0; pos < 64; pos++) {
             if ((boardBits & 1) != 0)
-                generateMovesAt(board, pos, filler);
+                generateMovesAt(board,  pos, filler);
             boardBits >>= 1;
         }
         return filler.getIdx();
@@ -62,14 +63,12 @@ public class MoveGenerator {
 
     }
 
-    public void generateMovesAt(Board board, int pos, ArrayFiller out) {
+    private void generateMovesAt(Board board, int pos, ArrayFiller out) {
         Piece piece = board.piece(pos);
         if (piece == null)
             return;
         int y = Position.y(pos);
         int x = Position.x(pos);
         moves.genMovesFor(piece, board, x, y, board.isWhite(pos), out);
-
     }
-
 }
